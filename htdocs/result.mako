@@ -31,6 +31,11 @@
             </div>
             <div>
                 <ul>
+                    <li><b>Authentication Class reference:</b> ${acr}</li>
+                </ul>
+            </div>
+            <div>
+                <ul>
                     <li><a href=${session}>Session information</a></li>
                 </ul>
             </div>

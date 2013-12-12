@@ -171,6 +171,9 @@ def simplify(item):
             _val = simplify(val)
             if _val:
                 res[key] = _val
+    else:
+        res = item
+
     return res
 
 
@@ -406,8 +409,15 @@ class ACS(Service):
                 uinfo.append((key, ", ".join([v for v in val])))
 
         uinfo.sort()
+        try:
+            ac = _resp.assertion[0].authn_statement[0].authn_context
+            acr = ac.authn_context_class_ref.text
+        except AssertionError:
+            acr = "Unknown"
+
         argv = {"uinfo": uinfo, "idp": _resp.issuer.text,
-                "session": "/Session/%s" % session_id}
+                "session": "/Session/%s" % session_id,
+                "acr": acr}
         return resp(self.environ, self.start_response, **argv)
 
     def verify_attributes(self, ava):
@@ -767,8 +777,9 @@ def application(environ, start_response):
         resp = BadRequest("%s" % err)
         return resp(environ, start_response)
     except Exception, err:
-        logging.exception("RUN", err)
-        return [err]
+        logging.exception("RUN: %s" % err)
+        resp = ServiceError(err)
+        return resp(environ, start_response)
 
 # ----------------------------------------------------------------------------
 
